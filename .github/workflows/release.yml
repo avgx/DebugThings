@@ -17,14 +17,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Match CI: avoid Swift 6.1.3 frontend crash in Pulse LoggerStore SIL optimization.
-      - name: Select Swift 6.2
-        uses: swift-actions/setup-swift@v3
-        with:
-          swift-version: "6.2"
-
-      - name: Swift version
-        run: swift --version
+      # Use Xcode's swift (see ci.yml): OSS swift.org toolchains from setup-swift can crash in
+      # GenericSpecializer on Pulse LoggerStore.initializeViewContext during release builds.
+      - name: Toolchain info
+        run: |
+          xcodebuild -version
+          which swift
+          xcrun -f swift
+          swift --version
 
       - name: Build (release)
         run: swift build -c release -v
