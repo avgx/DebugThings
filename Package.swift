@@ -25,14 +25,16 @@ let package = Package(
             name: "DebugThings",
             dependencies: [
                 .product(name: "Logging", package: "swift-log")
-            ]
+            ],
+            resources: [.copy("PrivacyInfo.xcprivacy")]
         ),
         .target(
             name: "DebugThingsPulseProxy",
             dependencies: [
                 "DebugThings",
                 "Pulse"
-            ]
+            ],
+            resources: [.copy("PrivacyInfo.xcprivacy")]
         ),
         .testTarget(
             name: "DebugThingsTests",
