@@ -1,7 +1,7 @@
 import Foundation
 import Logging
 
-class NetworkLoggerSimple {
+public class NetworkLoggerSimple {
     private let logger: Logger
     private let logBody: Bool
     
