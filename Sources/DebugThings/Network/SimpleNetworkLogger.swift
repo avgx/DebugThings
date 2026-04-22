@@ -1,7 +1,7 @@
 import Foundation
 import Logging
 
-public class NetworkLoggerSimple {
+public class SimpleNetworkLogger {
     private let logger: Logger
     private let logBody: Bool
     
@@ -10,7 +10,7 @@ public class NetworkLoggerSimple {
         self.logBody = logBody
     }
     
-    func logRequest(_ request: URLRequest) {
+    public func logRequest(_ request: URLRequest) {
         logger.debug("→ \(request.httpMethod ?? "?") \(request.url?.absoluteString ?? "?")")
         if let headers = request.allHTTPHeaderFields, !headers.isEmpty {
             for (key, value) in headers {
@@ -23,7 +23,7 @@ public class NetworkLoggerSimple {
         }
     }
     
-    func logResponse(_ response: HTTPURLResponse, body: Data, url: String) {
+    public func logResponse(_ response: HTTPURLResponse, body: Data, url: String) {
         let emoji = response.isSuccessful ? "✓" : "✗"
         logger.debug("← \(emoji) \(response.statusCode)  (\(body.count) bytes) \(url)")
         if !body.isEmpty && logBody {
@@ -32,7 +32,7 @@ public class NetworkLoggerSimple {
         }
     }
     
-    func logError(_ error: Error, url: String) {
+    public func logError(_ error: Error, url: String) {
         logger.error("✗ Error for \(url): \(error.localizedDescription)")
     }
 }

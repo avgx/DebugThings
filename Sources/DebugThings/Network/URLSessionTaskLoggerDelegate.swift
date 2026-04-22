@@ -4,7 +4,7 @@ import Logging
 // MARK: - Network Logging Delegate
 
 /// Forwards `URLSession` delegate callbacks to a ``URLSessionTaskLogger`` (SwiftLog, Pulse, or a custom wrapper).
-public final class NetworkLoggingDelegate: NSObject, URLSessionDelegate, URLSessionTaskDelegate, URLSessionDataDelegate,
+public final class URLSessionTaskLoggerDelegate: NSObject, URLSessionDelegate, URLSessionTaskDelegate, URLSessionDataDelegate,
     @unchecked Sendable
 {
     private let taskLogger: URLSessionTaskLogger
