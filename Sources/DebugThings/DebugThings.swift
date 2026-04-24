@@ -9,3 +9,11 @@ extension Thread {
         Thread.callStackSymbols.forEach { print($0) }
     }
 }
+
+extension Error {
+    public func isCancellation() -> Bool {
+        if self is CancellationError { return true }
+        let ns = self as NSError
+        return ns.domain == NSURLErrorDomain && ns.code == NSURLErrorCancelled
+    }
+}
