@@ -6,4 +6,6 @@ public struct NoopURLSessionTaskLogger: URLSessionTaskLogger {
     public func logTask(_ task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {}
     public func logTask(_ task: URLSessionTask, didFinishDecodingWithError error: Error?) {}
     public func logDataTask(_ dataTask: URLSessionDataTask, didReceive data: Data) {}
+    
+    public init() {}
 }

@@ -11,18 +11,18 @@ public struct SimpleURLSessionTaskLogger: URLSessionTaskLogger {
     }
     
     public func logTaskCreated(_ task: URLSessionTask) {
-        logger.debug("→ Task created: \(task.taskIdentifier) \(task.originalRequest?.url?.absoluteString ?? "?")")
+        logger.info("→ Task created: \(task.taskIdentifier) \(task.originalRequest?.url?.absoluteString ?? "?")")
     }
     
     public func logTask(_ task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
             if error.isCancellation() {
-                logger.debug("✓ Task \(task.taskIdentifier) cancelled")
+                logger.info("✓ Task \(task.taskIdentifier) cancelled")
             } else {
                 logger.error("✗ Task \(task.taskIdentifier) failed: \(error.localizedDescription)")
             }
         } else {
-            logger.debug("✓ Task \(task.taskIdentifier) completed")
+            logger.info("✓ Task \(task.taskIdentifier) completed")
         }
     }
     

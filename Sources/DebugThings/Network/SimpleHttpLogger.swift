@@ -1,7 +1,7 @@
 import Foundation
 import Logging
 
-public class SimpleNetworkLogger {
+public final class SimpleHttpLogger: Sendable {
     private let logger: Logger
     private let logBody: Bool
     
@@ -11,7 +11,7 @@ public class SimpleNetworkLogger {
     }
     
     public func logRequest(_ request: URLRequest) {
-        logger.debug("→ \(request.httpMethod ?? "?") \(request.url?.absoluteString ?? "?")")
+        logger.info("→ \(request.httpMethod ?? "?") \(request.url?.absoluteString ?? "?")")
         if let headers = request.allHTTPHeaderFields, !headers.isEmpty {
             for (key, value) in headers {
                 logger.debug("  \(key): \(value)")
@@ -25,7 +25,7 @@ public class SimpleNetworkLogger {
     
     public func logResponse(_ response: HTTPURLResponse, body: Data, url: String) {
         let emoji = response.isSuccessful ? "✓" : "✗"
-        logger.debug("← \(emoji) \(response.statusCode)  (\(body.count) bytes) \(url)")
+        logger.info("← \(emoji) \(response.statusCode)  (\(body.count) bytes) \(url)")
         if !body.isEmpty && logBody {
             let truncated = String(data: body.prefix(500), encoding: .utf8) ?? ""
             logger.debug("  Body: \(truncated)\(body.count > 500 ? "..." : "")")
