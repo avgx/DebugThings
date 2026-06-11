@@ -1,20 +1,19 @@
 # DebugThings
 
-SwiftPM libraries for SwiftLog-based diagnostics, optional file logging, OSLog bridging, URL session instrumentation, and optional [Pulse](https://github.com/kean/Pulse) integration.
+SwiftPM library for SwiftLog-based diagnostics: file logging, OSLog bridging, and URL session instrumentation.
 
-## Products
+Pulse integration lives in the separate [DebugThingsPulseProxy](https://github.com/avgx/DebugThingsPulseProxy) package.
+
+## Product
 
 | Product | Purpose |
 |--------|---------|
-| `DebugThings` | SwiftLog bootstraps (`stdout`, `OSLog`, file + OSLog), `LogHandler` helpers, `URLSessionTaskLogger`, `NetworkLoggingDelegate`. |
-| `DebugThingsPulseProxy` | Pulse `LoggerStore` log handler, `NetworkLogger` capture settings from app UI, `PulseSessionEventLogger`, streaming body skip helper. |
-
-Add only `DebugThings` if you do not want a Pulse dependency.
+| `DebugThings` | SwiftLog bootstraps (`stdout`, `OSLog`, file + OSLog), `LogHandler` helpers, `URLSessionTaskLogger`, `URLSessionTaskLoggerDelegate`. |
 
 ## SwiftPM
 
 ```swift
-.package(path: "../DebugThings")
+.package(url: "https://github.com/avgx/DebugThings.git", from: "1.0.0")
 ```
 
 ```swift
@@ -22,7 +21,6 @@ Add only `DebugThings` if you do not want a Pulse dependency.
     name: "YourApp",
     dependencies: [
         .product(name: "DebugThings", package: "DebugThings"),
-        .product(name: "DebugThingsPulseProxy", package: "DebugThings"),
     ]
 ),
 ```
@@ -60,36 +58,6 @@ enum AccountsService: Loggable {}
 AccountsService.logger.info("signed in")
 // Uses subsystem derived from the type name.
 ```
-
-## Pulse (optional)
-
-```swift
-import DebugThings
-import DebugThingsPulseProxy
-import Logging
-
-DebugThings.bootstrapPulse(level: .trace)
-```
-
-Update capture rules when your settings UI changes:
-
-```swift
-var settings = PulseNetworkCaptureSettings.default
-settings.excludedHosts = ["telemetry.example.com", "stream.example.com"]
-settings.includedHosts = ["api.example.com"]
-settings.applyToSharedNetworkLogger()
-```
-
-Wire URL session delegates:
-
-```swift
-let pulse = PulseSessionEventLogger()
-let taskLogger = StreamingSkippingURLSessionTaskLogger(inner: pulse)
-let delegate = NetworkLoggingDelegate(taskLogger: taskLogger)
-let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
-```
-
-`StreamingSkippingURLSessionTaskLogger` stops forwarding response bodies to Pulse once the response looks like SSE (`text/event-stream`) or MJPEG-style multipart (`multipart/x-mixed-replace`). Combine with `excludedHosts` / `excludedURLs` for endpoints that never get a useful `Content-Type`.
 
 ## Tests
 

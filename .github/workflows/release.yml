@@ -17,8 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Use Xcode's swift (see ci.yml): OSS swift.org toolchains from setup-swift can crash in
-      # GenericSpecializer on Pulse LoggerStore.initializeViewContext during release builds.
+      # Use Xcode's bundled Swift (see ci.yml).
       - name: Toolchain info
         run: |
           xcodebuild -version

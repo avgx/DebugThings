@@ -14,11 +14,9 @@ let package = Package(
     ],
     products: [
         .library(name: "DebugThings", targets: ["DebugThings"]),
-        .library(name: "DebugThingsPulseProxy", targets: ["DebugThingsPulseProxy"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.12.0"),
-        .package(url: "https://github.com/kean/Pulse.git", from: "5.2.1")
     ],
     targets: [
         .target(
@@ -28,21 +26,9 @@ let package = Package(
             ],
             resources: [.copy("PrivacyInfo.xcprivacy")]
         ),
-        .target(
-            name: "DebugThingsPulseProxy",
-            dependencies: [
-                "DebugThings",
-                "Pulse"
-            ],
-            resources: [.copy("PrivacyInfo.xcprivacy")]
-        ),
         .testTarget(
             name: "DebugThingsTests",
             dependencies: ["DebugThings"]
-        ),
-        .testTarget(
-            name: "DebugThingsPulseProxyTests",
-            dependencies: ["DebugThingsPulseProxy"]
         ),
     ]
 )

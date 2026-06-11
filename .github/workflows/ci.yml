@@ -20,10 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Do not use swift-actions/setup-swift here: it installs the OSS swift-*-RELEASE.xctoolchain,
-      # which can assert in GenericSpecializer (ApplySiteCloningHelper / TypeSubstCloner.h) while
-      # optimizing Pulse LoggerStore.initializeViewContext. The Xcode-bundled swift on the runner
-      # matches typical local development and avoids that OSS-only failure mode.
+      # Use Xcode's bundled Swift rather than swift-actions/setup-swift (OSS toolchains can differ from local Xcode).
       - name: Toolchain info
         run: |
           xcodebuild -version
@@ -34,8 +31,7 @@ jobs:
       - name: Build (debug)
         run: swift build -v
 
-      # Release runs a different SIL pipeline (e.g. WMO + -O on Pulse) than debug; OSS
-      # swift-*-RELEASE.xctoolchains have crashed in GenericSpecializer where debug passes.
+      # Release runs a different SIL pipeline than debug.
       - name: Build (release)
         run: swift build -c release -v
 

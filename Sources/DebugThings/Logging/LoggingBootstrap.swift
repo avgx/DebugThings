@@ -1,10 +1,11 @@
 import Foundation
 
-/// Coordinates a single ``LoggingSystem/bootstrap`` install per process across all `DebugThings` modules.
+/// Coordinates a single ``LoggingSystem/bootstrap`` install per process across `DebugThings` and packages
+/// that extend its bootstraps (for example `DebugThingsPulseProxy`).
 ///
 /// Call ``claimSwiftLogInstall()`` before ``LoggingSystem/bootstrap``. The first caller receives `true`;
 /// later callers receive `false` and should skip bootstrapping (mirrors prior `DebugThings.configured` behavior).
-package enum LoggingBootstrap {
+public enum LoggingBootstrap {
     private static let lock = NSLock()
     private nonisolated(unsafe) static var didInstallSwiftLogBackend = false
 
@@ -12,7 +13,7 @@ package enum LoggingBootstrap {
     ///
     /// - Important: Call ``LoggingSystem/bootstrap`` in the same code path when this returns `true`, otherwise
     ///   subsequent bootstraps are permanently skipped.
-    package static func claimSwiftLogInstall() -> Bool {
+    public static func claimSwiftLogInstall() -> Bool {
         lock.lock()
         defer { lock.unlock() }
         if didInstallSwiftLogBackend { return false }
