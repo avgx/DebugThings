@@ -151,8 +151,10 @@ struct CrashLayerTests {
         defer { try? FileManager.default.removeItem(at: directory) }
 
         CrashRecorder.install(directory: directory)
+        #expect(CrashRecorder.isInstalled)
         #expect(!CrashRecorder.hasPendingCrash)
         CrashRecorder.uninstall()
+        #expect(!CrashRecorder.isInstalled)
         #expect(!CrashRecorder.hasPendingCrash)
     }
 

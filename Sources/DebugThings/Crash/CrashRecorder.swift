@@ -78,6 +78,18 @@ public enum CrashRecorder: Sendable {
         CrashRecorderState.isInstalled = false
     }
 
+    /// Whether fatal-signal handlers and the capture FD are currently installed in this process.
+    ///
+    /// **What:** Mirrors the in-process install flag set by `install()` / cleared by `uninstall()`.
+    /// **Why:** Lets UI or settings reflect the live recorder state without keeping a separate
+    /// `AppStorage` mirror that can drift from reality.
+    /// **Constraints:** Process-local only — not persisted across launches. Preference/intent
+    /// (“user wants recording”) still belongs in app storage; call `install()` on startup when
+    /// that preference is on.
+    public static var isInstalled: Bool {
+        CrashRecorderState.isInstalled
+    }
+
     /// Whether a pending `.dtcr` from a previous run is present and large enough to decode.
     public static var hasPendingCrash: Bool {
         guard let url = pendingCrashFileURL else { return false }
