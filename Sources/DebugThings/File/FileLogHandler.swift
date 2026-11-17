@@ -25,6 +25,12 @@ public struct FileLogHandler: LogHandler {
   private let logFileURL: URL
   private let label: String
 
+  /// Serializes file appends across every handler instance writing to any log file.
+  /// Without it, concurrent log calls interleave partial lines in the file (observed
+  /// with onvif-probe: two loggers writing the same file corrupted line boundaries).
+  /// The line is fully formatted before the lock is taken, so contention is minimal.
+  private static let writeLock = NSLock()
+
   public var metadata: Logger.Metadata = [:]
   public var logLevel: Logger.Level = .info
 
@@ -32,7 +38,7 @@ public struct FileLogHandler: LogHandler {
   ///
   /// - Parameters:
   ///   - label: The logger label
-  ///   - logFileURL: The file URL to write logs to. Parent directories will be created if needed.
+  ///   - logFileURL: The file URL to write to. Parent directories will be created if needed.
   /// - Throws: If file cannot be created or opened for writing
   public init(label: String, logFileURL: URL) throws {
     self.label = label
@@ -86,8 +92,7 @@ public struct FileLogHandler: LogHandler {
 
     let levelStr = level.rawValue.uppercased().padding(toLength: 5, withPad: " ", startingAt: 0)
 
-    var logLine = "\(timestamp) [\(levelStr)] \(message)"
-
+    var metadataText = ""
     // Add metadata if present - format as key=value pairs
     if let metadata = metadata, !metadata.isEmpty {
       let sortedMetadata = metadata.sorted { $0.key < $1.key }
@@ -96,13 +101,16 @@ public struct FileLogHandler: LogHandler {
         let valueStr = "\(value)".replacingOccurrences(of: "\"", with: "")
         return "\(key)=\(valueStr)"
       }.joined(separator: ", ")
-      logLine += " → \(metadataStr)"
+      metadataText = " → \(metadataStr)"
     }
 
-    logLine += "\n"
+    let logLine = "\(timestamp) [\(levelStr)] \(message)\(metadataText)\n"
 
-    if let data = logLine.data(using: .utf8) {
-      fileHandle.write(data)
-    }
+    guard let data = logLine.data(using: .utf8) else { return }
+    // Format fully, then append under one lock so concurrent log calls cannot
+    // interleave bytes inside a single line.
+    Self.writeLock.lock()
+    defer { Self.writeLock.unlock() }
+    fileHandle.write(data)
   }
 }
