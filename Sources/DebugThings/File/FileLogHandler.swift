@@ -25,6 +25,10 @@ public struct FileLogHandler: LogHandler {
   private let logFileURL: URL
   private let label: String
 
+  public enum FileLogHandlerError: Error {
+    case cannotOpenFile(errno: Int32)
+  }
+
   /// Serializes file appends across every handler instance writing to any log file.
   /// Without it, concurrent log calls interleave partial lines in the file (observed
   /// with onvif-probe: two loggers writing the same file corrupted line boundaries).
@@ -50,13 +54,19 @@ public struct FileLogHandler: LogHandler {
       withIntermediateDirectories: true
     )
 
-    // Create or append to file
-    if !FileManager.default.fileExists(atPath: logFileURL.path) {
-      FileManager.default.createFile(atPath: logFileURL.path, contents: nil)
+    // Open in O_APPEND mode: every write atomically lands at the file's current
+    // end regardless of the file descriptor's offset. This is required because
+    // the SwiftLog factory constructs one handler instance per logger label,
+    // and loggers are created lazily — with `seekToEndOfFile()` captured once
+    // per handle, independently seeked handles on the same path write at stale
+    // offsets and overwrite each other's bytes (observed with onvif-probe:
+    // three package loggers sharing one log file produced corrupted lines such
+    // as "23:23:54:31.213"). O_APPEND also makes the file multi-process safe.
+    let descriptor = open(logFileURL.path, O_WRONLY | O_CREAT | O_APPEND, 0o644)
+    guard descriptor >= 0 else {
+      throw FileLogHandlerError.cannotOpenFile(errno: errno)
     }
-
-    self.fileHandle = try FileHandle(forWritingTo: logFileURL)
-    self.fileHandle.seekToEndOfFile()
+    self.fileHandle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
   }
 
   public subscript(metadataKey key: String) -> Logger.Metadata.Value? {
