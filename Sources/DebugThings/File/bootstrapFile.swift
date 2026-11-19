@@ -1,6 +1,6 @@
 import Foundation
 import Logging
-import OSLog
+import OSLogHandler
 
 extension DebugThings {
 
@@ -31,8 +31,10 @@ extension DebugThings {
                 handlers.append(fileLogHandler)
             }
 
-            let osLogger = os.Logger(subsystem: subsystem ?? "default", category: label)
-            var osLogHandler = OSLogHandler(logger: osLogger)
+            var osLogHandler = OSLogHandler(
+                subsystem: subsystem ?? "default",
+                category: label
+            )
             osLogHandler.logLevel = level
             if let metadata {
                 osLogHandler.metadata = metadata

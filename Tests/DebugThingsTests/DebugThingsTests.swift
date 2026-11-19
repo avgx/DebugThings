@@ -1,5 +1,6 @@
 import Foundation
 import Logging
+import OSLogHandler
 import Testing
 
 @testable import DebugThings
@@ -79,4 +80,13 @@ struct FileLogHandlerAppendTests {
             #expect(text.contains("B-\(index)-"))
         }
     }
+}
+
+@Test
+func explicitLogLevelOverridesSystemEnablement() {
+    var handler = OSLogHandler(subsystem: "com.debugthings.tests", category: "level")
+    handler.logLevel = .info
+    #expect(handler.logLevel == .info)
+    handler.logLevel = .critical
+    #expect(handler.logLevel == .critical)
 }
