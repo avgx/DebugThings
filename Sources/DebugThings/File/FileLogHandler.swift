@@ -33,7 +33,7 @@ public struct FileLogHandler: LogHandler {
   /// Without it, concurrent log calls interleave partial lines in the file (observed
   /// with onvif-probe: two loggers writing the same file corrupted line boundaries).
   /// The line is fully formatted before the lock is taken, so contention is minimal.
-  private static let writeLock = NSLock()
+  static let writeLock = NSLock()
 
   public var metadata: Logger.Metadata = [:]
   public var logLevel: Logger.Level = .info
@@ -95,6 +95,20 @@ public struct FileLogHandler: LogHandler {
     function: String,
     line: UInt
   ) {
+    guard let data = Self.formatLine(level: level, message: message, metadata: metadata) else { return }
+    // Format fully, then append under one lock so concurrent log calls cannot
+    // interleave bytes inside a single line.
+    Self.writeLock.lock()
+    defer { Self.writeLock.unlock() }
+    fileHandle.write(data)
+  }
+
+  /// Formats one log line as UTF-8 bytes, ending with a newline. Shared with ``RollingFileLogHandler``.
+  static func formatLine(
+    level: Logger.Level,
+    message: Logger.Message,
+    metadata: Logger.Metadata?
+  ) -> Data? {
     // Format timestamp as readable time
     let formatter = DateFormatter()
     formatter.dateFormat = "HH:mm:ss.SSS"
@@ -115,12 +129,6 @@ public struct FileLogHandler: LogHandler {
     }
 
     let logLine = "\(timestamp) [\(levelStr)] \(message)\(metadataText)\n"
-
-    guard let data = logLine.data(using: .utf8) else { return }
-    // Format fully, then append under one lock so concurrent log calls cannot
-    // interleave bytes inside a single line.
-    Self.writeLock.lock()
-    defer { Self.writeLock.unlock() }
-    fileHandle.write(data)
+    return logLine.data(using: .utf8)
   }
 }
