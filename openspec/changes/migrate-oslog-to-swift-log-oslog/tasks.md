@@ -21,11 +21,11 @@
 
 ## 4. Consumers
 
-- [ ] 4.1 Confirm by search that no other code in this workspace calls `DebugThings.OSLogHandler(logger:)`. Search result so far: only `DebugThingsPulseProxy/.../bootstrapPulse.swift`
-- [ ] 4.2 In `DebugThingsPulseProxy`, change `bootstrapPulse.swift` to `OSLogHandler(subsystem:category:)`, add the `swift-log-oslog` product dependency, and release that package after `3.0.0` is tagged. This is a separate repository and may need its own change
+- [x] 4.1 Confirm by search that no other code in this workspace calls `DebugThings.OSLogHandler(logger:)`. Search result so far: only `DebugThingsPulseProxy/.../bootstrapPulse.swift`
+- [x] 4.2 In `DebugThingsPulseProxy`, change `bootstrapPulse.swift` to `OSLogHandler(subsystem:category:)`, add the `swift-log-oslog` product dependency, and release that package after `3.0.0` is tagged. This is a separate repository and may need its own change
 
 ## 5. Validate and release
 
 - [x] 5.1 Run `openspec validate migrate-oslog-to-swift-log-oslog --strict`
 - [x] 5.2 Run `swift build` and `swift test` on macOS
-- [ ] 5.3 Tag `3.0.0` only after 5.2 passes and the open questions in `design.md` are answered
+- [x] 5.3 Tag `3.0.0` only after 5.2 passes and the open questions in `design.md` are answered
