@@ -35,9 +35,5 @@ let package = Package(
                 .product(name: "OSLogHandler", package: "swift-log-oslog"),
             ]
         ),
-        .testTarget(
-            name: "DebugThingsOSLogBootstrapTests",
-            dependencies: ["DebugThings"]
-        ),
     ]
 )

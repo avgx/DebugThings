@@ -90,3 +90,20 @@ func explicitLogLevelOverridesSystemEnablement() {
     handler.logLevel = .critical
     #expect(handler.logLevel == .critical)
 }
+
+@Test
+func osLogHandlerWithoutExplicitLevelDoesNotCrash() {
+    let handler = OSLogHandler(subsystem: "com.debugthings.tests", category: "smoke")
+    _ = handler.logLevel
+    handler.log(
+        event: LogEvent(
+            level: .info,
+            message: "bootstrap-oslog-smoke-marker",
+            metadata: nil,
+            source: "test",
+            file: #file,
+            function: #function,
+            line: #line
+        )
+    )
+}
